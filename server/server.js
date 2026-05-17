@@ -3,6 +3,7 @@ import cors from "cors";
 import "dotenv/config";
 import connectDB from "./configs/db.js";
 import adminRouter from "./routes/adminRoutes.js";
+import blogRouter from "./routes/blogRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -16,6 +17,7 @@ app.use(express.json());
 
 //Endpoints
 app.use("/api/admin" , adminRouter);
+app.use("/api/blog" , blogRouter)
 
 app.get("/", (req, res) => {
   res.send("The Server is working well");

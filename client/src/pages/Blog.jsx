@@ -5,34 +5,54 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Moment from "moment";
 import Loader from "../components/Loader";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const Blog = () => {
   const { id } = useParams();
+
+  const { axios } = useAppContext();
+
   const [data, setData] = useState(null);
   const [comments, setComments] = useState([]);
-  const [comment , setComment] = useState({
-     name: "",
-     content : ""
-  })
+  const [comment, setComment] = useState({
+    name: "",
+    content: "",
+  });
 
   const fetchBlogData = async () => {
-    const data = blog_data.find((item) => item._id === id);
-    // setData(data);
+    try {
+      const { data } = await axios.get(`/api/blog/${id}`);
+      data.success ? setData(data.blog) : toast.error(data.message);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const fetchComments = async () => {
-    setComments(comments_data);
+    try {
+      const { data } = await axios.get(`/api/blog/comments/${id}`);
+      data.success ? setComments(data.comments) : toast.error(data.message);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const addComment = async (e) => {
     e.preventDefault();
-    console.log(comment)
-    setComment({
-      name : "", 
-      content : ""
-    })
-  };
+    const data_send = {
+      blog: id,
+      name: comment.name,
+      content: comment.content,
+    };
 
+    const { data } = await axios.post(`/api/blog/add-comment`, data_send);
+    data.success ? toast.success(data.message) : toast.error(data.message);
+    setComment({
+      name: "",
+      content: "",
+    });
+  };
 
   useEffect(() => {
     fetchBlogData();
@@ -92,47 +112,50 @@ const Blog = () => {
         </div>
 
         {/* Add Comment Section */}
-      <div className="mx-w-3xl mx-auto">
-        <p className="font-semibold mb-4">Add your comment</p>
-        <form
-          className="flex flex-col items-start gap-4 max-w-lg"
-          onSubmit={addComment}
-        >
-          <input
-            className="w-full p-2 border border-gray-300 rounded outline-none"
-            type="text"
-            placeholder="Name"
-            name="name"
-            value={comment.name}
-            onChange={(e)=> setComment({...comment , name:e.target.value})}
-            required
-          />
-          <textarea
-            className="w-full p-2 border border-gray-300 rounded outline-none h-48"
-            placeholder="Comment"
-            name="content"
-            value={comment.content}
-            onChange={(e)=> setComment({...comment , content:e.target.value})}
-            required
-          ></textarea>
-          <button
-            className="bg-primary text-white rounded p-2 px-8 hover:scale-102 transition-all cursor-pointer"
-            type="submit"
+        <div className="mx-w-3xl mx-auto">
+          <p className="font-semibold mb-4">Add your comment</p>
+          <form
+            className="flex flex-col items-start gap-4 max-w-lg"
+            onSubmit={addComment}
           >
-            Submit
-          </button>
-        </form>
-      </div>
-      {/* Share Buttons */}
-      <div className='my-24 max-w-3xl mx-auto'>
-        <p className="font-semibold my-4">Share this article on social media</p>
-        <div className='flex'>
-          <img src={assets.facebook_icon} width={50} alt="" />
-          <img src={assets.twitter_icon} width={50} alt="" />
-          <img src={assets.googleplus_icon} width={50} alt="" />
-
+            <input
+              className="w-full p-2 border border-gray-300 rounded outline-none"
+              type="text"
+              placeholder="Name"
+              name="name"
+              value={comment.name}
+              onChange={(e) => setComment({ ...comment, name: e.target.value })}
+              required
+            />
+            <textarea
+              className="w-full p-2 border border-gray-300 rounded outline-none h-48"
+              placeholder="Comment"
+              name="content"
+              value={comment.content}
+              onChange={(e) =>
+                setComment({ ...comment, content: e.target.value })
+              }
+              required
+            ></textarea>
+            <button
+              className="bg-primary text-white rounded p-2 px-8 hover:scale-102 transition-all cursor-pointer"
+              type="submit"
+            >
+              Submit
+            </button>
+          </form>
         </div>
-      </div>
+        {/* Share Buttons */}
+        <div className="my-24 max-w-3xl mx-auto">
+          <p className="font-semibold my-4">
+            Share this article on social media
+          </p>
+          <div className="flex">
+            <img src={assets.facebook_icon} width={50} alt="" />
+            <img src={assets.twitter_icon} width={50} alt="" />
+            <img src={assets.googleplus_icon} width={50} alt="" />
+          </div>
+        </div>
       </div>
       <Footer />
     </div>
